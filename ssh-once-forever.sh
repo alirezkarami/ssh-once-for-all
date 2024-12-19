@@ -1,14 +1,10 @@
 #!/bin/bash
 
-# گرفتن اطلاعات از کاربر
-read -p "Enter your email address: " email
-read -p "Enter your server username (default: root): " username
-read -p "Enter your SSH port (default: 22): " ssh_port
-read -p "Enter a comma-separated list of server IPs (e.g. server1.com,192.168.1.1): " server_ips
-
-# استفاده از مقادیر پیش‌فرض
-username=${username:-root}
-ssh_port=${ssh_port:-22}
+# استفاده از پارامترهای ورودی (اگر داده شده باشد)
+email=${1:-"your_email@example.com"}
+username=${2:-"root"}
+server_ips=${3:-"192.168.1.1"} # لیست پیش‌فرض IP یا دامنه سرورها
+ssh_port=${4:-22}
 
 # بررسی وجود کلید SSH و حذف آن در صورت وجود
 if [ -f ~/.ssh/id_rsa ]; then
