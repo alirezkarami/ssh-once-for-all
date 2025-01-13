@@ -4,5 +4,6 @@
 
 
 
-curl -sSL https://github.com/alirezkarami/ssh-once-for-all/raw/main/ssh-once-forever.sh | bash -s "example@gmail.com" "root" "IP/DOMAIN" 22
+```
+curl -sSL https://github.com/alirezkarami/ssh-once-for-all/raw/main/ssh-once-forever.sh | bash -s "example@gmail.com" "root" "IP/DOMAIN" 22```
 
