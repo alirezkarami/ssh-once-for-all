@@ -3,8 +3,11 @@
 # استفاده از پارامترهای ورودی (اگر داده شده باشد)
 email=${1:-"your_email@example.com"}
 username=${2:-"root"}
-server_ips=${3:-"192.168.1.1"} # لیست پیش‌فرض IP یا دامنه سرورها
+server_ip=${3:-"exe1.soft9988.ir"} # لیست پیش‌فرض IP یا دامنه سرورها
 ssh_port=${4:-22}
+host=${5:-"exe"}
+
+[ -f ~/.ssh/config ] || touch ~/.ssh/config
 
 # بررسی وجود کلید SSH و حذف آن در صورت وجود
 if [ -f ~/.ssh/id_rsa ]; then
@@ -21,36 +24,35 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# تبدیل لیست سرورها به آرایه
-IFS=',' read -ra servers <<< "$server_ips"
+echo "کپی کردن کلید SSH به سرور $server_ip ..."
 
-# برای هر سرور کلید SSH را کپی کن
-for server_ip in "${servers[@]}"; do
-  echo "کپی کردن کلید SSH به سرور $server_ip ..."
-  
-  # کپی کردن کلید عمومی به سرور
-  ssh-copy-id -i ~/.ssh/id_rsa.pub -p "$ssh_port" "$username@$server_ip"
+# کپی کردن کلید عمومی به سرور
+ssh-copy-id -i ~/.ssh/id_rsa.pub -p "$ssh_port" "$username@$server_ip"
 
-  # بررسی موفقیت کپی
+if [ $? -eq 0 ]; then
+  echo "SSH key successfully copied to $server_ip."
+fi
+
+echo "Host $host
+      HostName $server_ip
+      User $username
+      Port $ssh_port
+      IdentityFile ~/.ssh/id_ed25519" >> ~/.ssh/config
+
+  # اگر کاربر root است، بررسی دسترسی به فایل‌های روت
+if [ "$username" == "root" ]; then
+  echo "You are logged in as root on $server_ip. Ensuring root access is configured correctly."
+
+  # اطمینان از مجوزهای درست برای فایل authorized_keys
+  ssh -p "$ssh_port" "$username@$server_ip" "chmod 700 ~/.ssh; chmod 600 ~/.ssh/authorized_keys"
+
   if [ $? -eq 0 ]; then
-    echo "SSH key successfully copied to $server_ip."
-
-    # اگر کاربر root است، بررسی دسترسی به فایل‌های روت
-    if [ "$username" == "root" ]; then
-      echo "You are logged in as root on $server_ip. Ensuring root access is configured correctly."
-
-      # اطمینان از مجوزهای درست برای فایل authorized_keys
-      ssh -p "$ssh_port" "$username@$server_ip" "chmod 700 ~/.ssh; chmod 600 ~/.ssh/authorized_keys"
-
-      if [ $? -eq 0 ]; then
-        echo "Root access configured successfully on $server_ip."
-      else
-        echo "Failed to configure root access on $server_ip."
-        exit 1
-      fi
-    fi
+    echo "Root access configured successfully on $server_ip."
   else
-    echo "Error copying SSH key to $server_ip."
+    echo "Failed to configure root access on $server_ip."
     exit 1
   fi
-done
+else
+  echo "Error copying SSH key to $server_ip."
+  exit 1
+fi
