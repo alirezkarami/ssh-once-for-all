@@ -13,3 +13,6 @@ To use the script, simply run the following command:
 
 ```bash
 curl -sSL https://github.com/alirezkarami/ssh-once-for-all/raw/main/ssh-once-forever.sh | bash -s "<email>" "<username>" "<server_ip/domain>" "<ssh_port>" "<host_name>"
+
+
+ssh host_name
